@@ -8,20 +8,20 @@ class heuristic_type(Enum):
 class HeuristicValue:
 
     def define_heuristic(self, type):
-        if (type == Enum.MANHATTAN)
+        if (type == Enum.MANHATTAN):
             self.heuristic = Enum.MANHATTAN
         print("enum non handled error")
         return 0
 
     @staticmethod
     def return_h(self, state):
-        if (self.heuristic == Enum.MANHATTAN)
-            return check_manhattan(state)
+        if (self.heuristic == Enum.MANHATTAN):
+            return self.check_manhattan(state)
 
     def check_manhattan(self, curr):
         difference = 0
-        for i in range(0, size)):
-            for j in range(0, size):
+        for i in range(0, len(curr.puzzle)):
+            for j in range(0, len(i)):
                 if curr.puzzle[i][j] != self.goal[i][j]:
                     difference += 1
         return difference

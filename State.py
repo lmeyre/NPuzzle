@@ -20,7 +20,6 @@ class State:
 
     def make_next_state(self, numberPosX, numberPosY, spacePosX, spacePosY):
         newPuzzle = self.clone()
-        #modifier le puzzle swap les nombre
         temp = self.puzzle[numberPosX][numberPosY]
         newPuzzle[numberPosX][numberPosY] = temp
         newPuzzle[spacePosX][spacePosY] = '_'

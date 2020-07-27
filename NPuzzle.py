@@ -28,6 +28,9 @@ class OurPuzzle:
         print("Please enter the goal puzzle form, line by line")
         self.goal = self.read_input() #Goal is just an array with no f value
         
+    def sort_f(self):
+        #Sort in order by f parameter, some method already exist for this
+        # self.open.sort(key = lambda x:x.fval,reverse=False)
         
     def run_puzzle(self):
         #Do while not avalaible ?
@@ -37,6 +40,11 @@ class OurPuzzle:
             if (current.h == 0):
                 break
             paths = current.create_paths()
+            self.used.append(current)
+            del self.actives[0] #value or reference type ? verifier qu'on perd pas ce qu'on vient d'add dans used en deletant ici
+            for i in paths:
+                self.actives.append(i)
+            self.sort_f()
 
 
     def launch_puzzle(self):
