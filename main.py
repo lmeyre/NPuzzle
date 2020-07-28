@@ -3,6 +3,7 @@
 import argparse as arg
 import sys
 import Parsing
+import Puzzle
 
 def main():
     parser = arg.ArgumentParser(description='This program solves n-puzzle')
