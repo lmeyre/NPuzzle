@@ -26,6 +26,8 @@ class Parsing:
                 content.append(line)
             except EOFError:
                 break
+        if len(content) == 0:
+            return None, "empty file"
         return content, None
 
     def get_puzzle_from_file(self, filename):
@@ -36,6 +38,8 @@ class Parsing:
             for line in file.readlines():
                 content.append(line.strip())
             file.close()
+            if len(content) == 0:
+                return None, "empty file"
             return content, None
         except (FileNotFoundError):
             err = "file not found: %s" % filename
