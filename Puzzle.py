@@ -5,30 +5,13 @@ import Utils
 
 class Puzzle:
 
-    def __init__(self, size):
+    def __init__(self, puzzle, heuristic):
         self.size = size
         self.actives = []
         self.used = []
-        
-    def read_input(self):
-        puzzle = []
-        for i in range(0, self.size):
-            while True:
-                line = input().split(" ")
-                if (len(line) == self.size):
-                    break 
-                print("Please enter a right number of elements, you entered " , len(line))
-            puzzle.append(line)
-        return puzzle
-    
-    def get_data(self):
-        print("Please enter the original puzzle form, line by line")
-        lineArray = self.read_input()
-        self.starter = State(lineArray, 0, None) 
+        HeuristicValue.assign_type(heuristic)
 
     def check_valid_puzzle(self):
-        numbers = Utils.collect_numbers(self.starter.puzzle)
-        #Utils.verify_numbers(numbers, self.size)
         return True
 
     def create_goal(self):
@@ -39,7 +22,6 @@ class Puzzle:
         return 0
         
     def best_choice(self):
-        #print("actives cells = ", len(self.actives))
         best = self.actives[0]
         bestF = self.actives[0].f
         for i in self.actives:
@@ -69,13 +51,5 @@ class Puzzle:
         print("finished ?")
 
     def launch_puzzle(self):
-        HeuristicValue.assign_type(E_Heuristic.MANHATTAN)
-        self.get_data()
         self.create_goal()
         self.run_puzzle()
-
-x = Puzzle(3)
-x.launch_puzzle()
-"1 3 2"
-"4 5 6"
-"8 7 _"

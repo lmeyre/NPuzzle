@@ -14,8 +14,8 @@ def main():
     if err:
         print("n-puzzle error: %s" % err)
         return False
-    # ON APPELLE L'ALGO ICI
-    print(puzzle)
+    Solver = Puzzle(puzzle, args.heuristic)
+    Solver.launch_puzzle()
     return True
         
 if __name__ == '__main__':

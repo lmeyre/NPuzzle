@@ -3,7 +3,7 @@
 from enum import Enum
 
 class E_Heuristic(Enum):
-    MANHATTAN = 1
+    MANHATTAN = 0
 
 class HeuristicValue:
 
