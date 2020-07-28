@@ -7,6 +7,7 @@ class Parsing:
     error_message = ""
 
     def get_puzzle_from_input(self):
+        """Get the puzzle from user input on stdin"""
         print("""Please enter your puzzle following the right format
     Exemple:
 
@@ -28,6 +29,7 @@ class Parsing:
         return content, None
 
     def get_puzzle_from_file(self, filename):
+        """Read a file to get the puzzle"""
         try:
             file = open(filename, "r")
             content = []
@@ -44,6 +46,7 @@ class Parsing:
         return None, err
 
     def set_raw_puzzle(self, filename_arg):
+        """Set the raw_content attribute with the puzzle come from user input or file"""
         if filename_arg:
             self.raw_content, err = self.get_puzzle_from_file(filename_arg)
         else:
@@ -53,6 +56,7 @@ class Parsing:
         return None
 
     def validation_puzzle(self):
+        """Check if the self.puzzle list is valid for the parsing"""
         if len(self.puzzle[0]) != 1:
             return "the size should be specified first"
         size = self.puzzle[0][0]
@@ -62,6 +66,12 @@ class Parsing:
         return None
 
     def parse(self, filename):
+        """
+            Parse the n-puzzle file format and checking errors
+            Returns:
+                - 2 dimensions list with the final puzzle
+                - an error message
+        """
         err = self.set_raw_puzzle(filename)
         if err:
             return None, "parsing error: %s" % err
