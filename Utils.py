@@ -33,5 +33,25 @@ def verify_numbers_link(numbers, size):
         print("problem numbers dont link")
         sys.exit()
 
+def create_goal(puzzle):
+    # goal = []
+    # target = 1
+    # for i in range(0, len(puzzle)):
+    #     line = []
+    #     for j in range(0, len(puzzle)):
+    #         line.append(target)
+    #         target += 1
+    #         if (target == len(puzzle) * len(puzzle)):
+    #             target = 0
+    #     goal.append(line)
+    # print("Goal is ", goal)
+    #Ou truc de bg
+
+    size = len(puzzle)
+    goal = [[size * y + x for x in range(1, size+1)] for y in range(size)]
+    goal[size-1][size-1] = 0
+    return goal
+    
+
 
 

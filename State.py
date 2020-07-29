@@ -13,16 +13,22 @@ class State:
     def give_space_pos(self):
         for i in range(0, len(self.puzzle)):
             for j in range(0, len(self.puzzle)):
-                if self.puzzle[i][j] == '_':
+                if self.puzzle[i][j] == 0:
                     return i, j
-        print("no blank space in algo protect")
+        print("Missing blank space ?")
+        print (self.puzzle)
         return -1, -1
 
     def make_next_state(self, numberPosX, numberPosY, spacePosX, spacePosY):
         newPuzzle = self.clone()
         temp = self.puzzle[numberPosX][numberPosY]
-        newPuzzle[numberPosX][numberPosY] = temp
-        newPuzzle[spacePosX][spacePosY] = '_'
+        newPuzzle[spacePosX][spacePosY] = temp
+        newPuzzle[numberPosX][numberPosY] = 0
+        
+        # print("new paths details = ")
+        # for i in range(0, len(newPuzzle)):
+        #     print(newPuzzle[i])
+
         newState = State(newPuzzle, self.g + 1, self)
         return newState
 
@@ -48,4 +54,5 @@ class State:
             paths.append(self.make_next_state(x, y + 1, x, y))
         if (len(paths) == 0):
             print("0 paths ? x = " , x, " y = ", y)
+        #print("created ", len(paths), " paths ")
         return paths
