@@ -26,6 +26,8 @@ class Parsing:
                 content.append(line)
             except EOFError:
                 break
+        if len(content) == 0:
+            return None, "empty file"
         return content, None
 
     def get_puzzle_from_file(self, filename):
@@ -36,6 +38,8 @@ class Parsing:
             for line in file.readlines():
                 content.append(line.strip())
             file.close()
+            if len(content) == 0:
+                return None, "empty file"
             return content, None
         except (FileNotFoundError):
             err = "file not found: %s" % filename
@@ -60,9 +64,19 @@ class Parsing:
         if len(self.puzzle[0]) != 1:
             return "the size should be specified first"
         size = self.puzzle[0][0]
+        if size != len(self.puzzle[1:]):
+            return "bad size"
+        dict_validity = {i:False for i in range(size * size)}
         for line in self.puzzle[1:]:
             if len(line) != size:
                 return "bad size"
+            for col in line:
+                if col in dict_validity:
+                    if dict_validity[col] == True:
+                        return "duplicate number: %d" % col
+                    dict_validity[col] = True
+                else:
+                    return "bad number: %d" % col
         return None
 
     def parse(self, filename):
