@@ -3,23 +3,27 @@ from Heuristic import HeuristicValue, E_Heuristic
 import sys
 import Utils
 
+#Faire remonter les exits
 class Puzzle:
 
     def __init__(self, puzzle, heuristic):
-        self.size = size
+        self.size = len(puzzle)
+        HeuristicValue.heuristic = E_Heuristic.MANHATTAN
+        self.create_goal(puzzle)
+        self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
-        HeuristicValue.assign_type(heuristic)
+        self.debug = False
 
-    def check_valid_puzzle(self):
+    def check_valid_puzzle(self, origin_puzzle):
         return True
 
-    def create_goal(self):
-        if (self.check_valid_puzzle() == False):
-            print("Bad Puzzle forms")#temporary message
+    def create_goal(self, origin_puzzle):
+        if (self.check_valid_puzzle(origin_puzzle) == False):
+            print("Bad Puzzle forms")
             sys.exit()
-        #sort piece to make a good puzzle
-        return 0
+        self.goal = Utils.create_goal(origin_puzzle)
+        HeuristicValue.goal = self.goal
         
     def best_choice(self):
         best = self.actives[0]
@@ -31,25 +35,37 @@ class Puzzle:
         return best
         
     def run_puzzle(self):
-        #Do while not avalaible ?
         loop = 0
         self.actives.append(self.starter)
+        #print("Origin = ")
+        for i in range(0, len(self.starter.puzzle)):
+            print(self.starter.puzzle[i])
         while True:
-            #print("one loop")
+            #print("One round")
             loop += 1
-            if loop > 1000:
-                print("stuck")
+            if loop > 30:
+                print("End too long")
                 sys.exit()
             current = self.best_choice()
             if (current.h == 0):
                 break
             paths = current.create_paths()
             self.used.append(current)
-            del self.actives[0]
+            i = self.actives.index(current)
+            del self.actives[i]
+            
             for i in paths:
                 self.actives.append(i)
-        print("finished ?")
+            if (self.debug == True):
+                print("New paths = ")
+                for i in paths:
+                    print("///////////")
+                    for j in range(0, len(i.puzzle)):
+                        print(i.puzzle[j])
+                    print("its h value = ", i.h)
+        print("Finished :")
+        for i in range(0, len(current.puzzle)):
+            print(current.puzzle[i])
 
     def launch_puzzle(self):
-        self.create_goal()
         self.run_puzzle()
