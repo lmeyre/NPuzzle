@@ -18,8 +18,8 @@ def main():
     if err:
         print("n-puzzle error: %s" % err)
         return False
-    print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
-    Solver = Puzzle(puzzle, args.heuristic)
+    # print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
+    Solver = Puzzle.Puzzle(puzzle, args.heuristic)
     Solver.launch_puzzle()
     return True
         

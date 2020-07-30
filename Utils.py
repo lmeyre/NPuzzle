@@ -107,6 +107,7 @@ def return_distance(x1, y1, x2, y2):
     return (finalX + finalY)
 
 def get_goal_snail(start):
+    size = len(start)
     # Init goat 2d tab
     goal = [[x for x in range(1, size+1)] for y in range(size)]
     # Get list of numbers
