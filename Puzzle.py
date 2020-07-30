@@ -13,7 +13,7 @@ class Puzzle:
         self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
-        self.debug = False
+        self.debug = True
 
     def check_valid_puzzle(self, origin_puzzle):
         return True
@@ -40,9 +40,10 @@ class Puzzle:
         return best
 
     def check_past_states(self, newState):
-        for i in self.actives:
-            if (newState == i.puzzle):
-                return False
+        #remettre quand ca marchera  
+        # for i in self.actives:
+        #     if (newState == i.puzzle):
+        #         return False
         for i in self.used:
             if (newState == i.puzzle):
                 return False
@@ -60,20 +61,20 @@ class Puzzle:
         while True:
             #print("One round")
             loop += 1
-            # if loop > 10:
-            #     print("End too long, total try = ", loop)
-            #     sys.exit()
+            if loop > 10:
+                print("End too long, total try = ", loop)
+                sys.exit()
             current = self.best_choice()
             if (current.h == 0):
                 break
             paths = current.create_paths()
             self.used.append(current)
-            print("1 len = ", len(self.actives))
             self.actives.remove(current)
-            print("2 len = ", len(self.actives))
             for i in paths:
                 if (self.check_past_states(i.puzzle) == False):
-                    paths.remove(i)
+                    #paths.remove(i)
+                    if(i.puzzle != current.puzzle):
+                        print("Deleting this:", i.puzzle)
                     print("Deleting one!")
                 else:
                     self.actives.append(i)
@@ -84,7 +85,6 @@ class Puzzle:
                     for j in range(0, len(i.puzzle)):
                         print(i.puzzle[j])
                     print("its f and h value = ", i.f, i.h)
-            print("3 len = ", len(self.actives))
 
         print("Finished in a total of ", loop, "loops in algo")
         for i in range(0, len(current.puzzle)):
