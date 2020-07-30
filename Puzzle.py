@@ -73,7 +73,7 @@ class Puzzle:
             print("2 len = ", len(self.actives))
             for i in paths:
                 if (self.check_past_states(i.puzzle) == False):
-                    paths.remove(i)
+                    # paths.remove(i)
                     print("Deleting one!")
                 else:
                     self.actives.append(i)
