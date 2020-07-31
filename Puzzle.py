@@ -13,6 +13,7 @@ class Puzzle:
         self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
+        self.comparaisons = 0
         self.debug = False
 
     def check_valid_puzzle(self, origin_puzzle):
@@ -73,13 +74,15 @@ class Puzzle:
         if f > bound:
             return f
         # print("comparaison", node.puzzle, self.goal)
+        self.comparaisons += 1
         if node.puzzle == self.goal:
+            print("Finished with %d comparaisons" % self.comparaisons)
             return True
         mini = float("inf")
         for succ in node.create_paths():
             if succ not in path:
                 path.append(succ)
-                t = self.search(path, succ.g, bound)
+                t = self.search(path, g + 1, bound)
                 if t == True:
                     return True
                 if t < mini:
