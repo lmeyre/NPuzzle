@@ -20,10 +20,12 @@ def main():
         return False
     # print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
     Solver = Puzzle.Puzzle(puzzle, args.heuristic)
-    Solver.launch_puzzle()
+    # Solver.launch_puzzle()
+    print(Solver.ida_star())
     return True
         
 if __name__ == '__main__':
+    # sys.setrecursionlimit(10000)
     try:
          if main() == False:
              sys.exit(1)

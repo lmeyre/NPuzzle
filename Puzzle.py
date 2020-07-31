@@ -48,7 +48,71 @@ class Puzzle:
                 return False
         return True
 
-        
+#############################################################
+#   TEST IDA*
+#############################################################
+
+    def search(self, path, g, bound):
+        # node := path.last
+        # f := g + h(node)
+        # if f > bound then return f
+        # if is_goal(node) then return FOUND
+        # min := ∞
+        # for succ in successors(node) do
+        #     if succ not in path then
+        #       path.push(succ)
+        #       t := search(path, g + cost(node, succ), bound)
+        #       if t = FOUND then return FOUND
+        #       if t < min then min := t
+        #       path.pop()
+        #     end if
+        # end for
+        # return min
+        node = path[-1]
+        f = g + node.h
+        if f > bound:
+            return f
+        # print("comparaison", node.puzzle, self.goal)
+        if node.puzzle == self.goal:
+            return True
+        mini = float("inf")
+        for succ in node.create_paths():
+            if succ not in path:
+                path.append(succ)
+                t = self.search(path, succ.g, bound)
+                if t == True:
+                    return True
+                if t < mini:
+                    mini = t
+                path.pop()
+        return mini
+
+    def ida_star(self):
+        # bound := h(root)
+        # path := [root]
+        # loop
+        #     t := search(path, 0, bound)
+        #     if t = FOUND then return (path, bound)
+        #     if t = ∞ then return NOT_FOUND
+        #     bound := t
+        # end loop
+        bound = self.starter.h
+        path = [self.starter]
+        loop = 0
+        while True:
+            loop += 1
+            t = self.search(path, 0, bound)
+            if t == True:
+                print("finished in %d loop" % loop)
+                print(path, bound)
+                return path, bound
+            if t == float("inf"):
+                print("not found")
+                return False
+            bound = t
+
+#############################################################
+
     def run_puzzle(self):
         loop = 0
         self.actives.append(self.starter)
