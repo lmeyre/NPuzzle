@@ -8,7 +8,7 @@ class Puzzle:
 
     def __init__(self, puzzle, heuristic):
         self.size = len(puzzle)
-        HeuristicValue.heuristic = E_Heuristic.MANHATTAN
+        HeuristicValue.heuristic = E_Heuristic.LINEAR_CONFLICT
         self.create_goal(puzzle)
         self.starter = State(puzzle, 0, None)
         self.actives = []
