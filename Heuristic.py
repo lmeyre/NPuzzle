@@ -62,7 +62,13 @@ class HeuristicValue:
                         #mais le goal de l'un est a droite du goal de l'autre
         base_h = HeuristicValue.check_manhattan(curr)
         conflict_value = find_conflict(curr.puzzle, HeuristicValue.goal)
-        return conflict_value
+        #print("total = ", (conflict_value + base_h), " with a conflict = ", conflict_value, "state look like this :")
+        # for row in curr.puzzle:
+        #     print(row)
+        #print("goal")
+        # for row in HeuristicValue.goal:
+        #     print(row)
+        return conflict_value + base_h
 
 def find_conflict(puzzle, goal):
     #row
@@ -76,18 +82,20 @@ def analyze_row(row, puzzle, goal):
     position = 0
     conflict_value = 0
     area1 = puzzle[row]
+    #print("row = ", area1)
     for number in range(0, len(area1)):
         for other in range(0, len(area1)):
-            if (return_goal_line(False, number, goal) == row # if number is on the goal row
-            and return_goal_line(False, number, goal) == return_goal_line(False, other, goal) # and there is another number in this row which goal is in this row too
+            if (return_goal_line(False, area1[number], goal) == row # if number is on the goal row
+            and return_goal_line(False, area1[number], goal) == return_goal_line(False, area1[other], goal) # and there is another number in this row which goal is in this row too
             and number != other):
                 if number < other:
                     position = -1
                 else:
                     position = 1
-            if ((position == -1 and return_goal_line(True, number, goal) > return_goal_line(True, other, goal))#if number is to the left (compared to other) and his goal is to the right (compared to other) -> conflict
-            or (position == 1 and return_goal_line(True, number, goal) < return_goal_line(True, other, goal))):# or opposite
-                conflict_value += 1 #Normalement 2 mais on met qu'un vu qu'on les compte en double
+                if ((position == -1 and return_goal_line(True, area1[number], goal) > return_goal_line(True, area1[other], goal))#if number is to the left (compared to other) and his goal is to the right (compared to other) -> conflict
+                or (position == 1 and return_goal_line(True, area1[number], goal) < return_goal_line(True, area1[other], goal))):# or opposite
+                    #print("found row conflict between ", area1[number], " and ", area1[other])
+                    conflict_value += 1 #Normalement 2 mais on met qu'un vu qu'on les compte en double
             #A voir si on detecte tous les conflits, dans les deux sens, puis a la fin on divise par deux la valeur de conflit vu qu'on les a tous compte en double, ou si on fait un truc qui verifie si on le connait deja et stock
             #Je ne sais pas lequel est le plus couteux
     return conflict_value
@@ -96,18 +104,20 @@ def analyze_colum(col, puzzle, goal):
     position = 0
     conflict_value = 0
     area1 = artificial_colum(puzzle, col)
+    #print("col row form = ", area1)
     for number in range(0, len(area1)):
         for other in range(0, len(area1)):
-            if (return_goal_line(True, number, goal) == col
-            and return_goal_line(True, number, goal) == return_goal_line(True, other, goal)
+            if (return_goal_line(True, area1[number], goal) == col
+            and return_goal_line(True, area1[number], goal) == return_goal_line(True, area1[other], goal)
             and number != other):
                 if number < other:
                     position = -1
                 else:
                     position = 1
-            if ((position == -1 and return_goal_line(False, number, goal) > return_goal_line(False, other, goal))
-            or (position == 1 and return_goal_line(False, number, goal) < return_goal_line(False, other, goal))):
-                conflict_value += 1
+                if ((position == -1 and return_goal_line(False, area1[number], goal) > return_goal_line(False, area1[other], goal))
+                or (position == 1 and return_goal_line(False, area1[number], goal) < return_goal_line(False, area1[other], goal))):
+                    #print("found col conflict between ", area1[number], " and ", area1[other], "we are told that goal line for ", area1[number], " is ", return_goal_line(True, area1[number], goal)," and the goal line for ", area1[other], " is ", return_goal_line(True, area1[other], goal))
+                    conflict_value += 1
     return conflict_value
             
 def artificial_colum(puzzle, col):
@@ -125,11 +135,13 @@ def return_goal_line(is_colum, target, goal):#Return the line or the colum the n
         for row in range(0, len(goal)):
             for number in goal[row]:
                 if number == target:
+                    #print("The goal line for ", target, " is ", row)
                     return row
     else:
         for row in goal:
             for colum in range(0, len(row)):
                 if row[colum] == target:
+                    #print("The goal col for ", target, " is ", colum)
                     return colum
 
 
