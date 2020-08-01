@@ -16,13 +16,13 @@ class Puzzle:
         self.debug = False
 
     def check_valid_puzzle(self, origin_puzzle):
-        return True
+        return Utils.is_solvable(origin_puzzle, self.goal)
 
     def create_goal(self, origin_puzzle):
+        self.goal = Utils.create_goal(origin_puzzle)
         if (self.check_valid_puzzle(origin_puzzle) == False):
             print("Bad Puzzle forms")
             sys.exit()
-        self.goal = Utils.create_goal(origin_puzzle)
         HeuristicValue.goal = self.goal
         
     def best_choice(self):

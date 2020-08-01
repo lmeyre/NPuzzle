@@ -9,7 +9,8 @@ class E_Heuristic(Enum):
 class HeuristicValue:
 
     heuristic = E_Heuristic.MANHATTAN
-    goal = [[0,0,0],[0,0,0],[0,0,0]]
+    # goal = [[0,0,0],[0,0,0],[0,0,0]]
+    goal = []
 
     # @staticmethod
     # def assign_type(heur):
