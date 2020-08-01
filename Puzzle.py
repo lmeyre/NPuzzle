@@ -13,7 +13,7 @@ class Puzzle:
         self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
-        self.debug = True
+        self.debug = False
 
     def check_valid_puzzle(self, origin_puzzle):
         return True
@@ -41,9 +41,9 @@ class Puzzle:
 
     def check_past_states(self, newState):
         #remettre quand ca marchera  
-        # for i in self.actives:
-        #     if (newState == i.puzzle):
-        #         return False
+        for i in self.actives:
+            if (newState == i.puzzle):
+                return False
         for i in self.used:
             if (newState == i.puzzle):
                 return False
@@ -57,11 +57,10 @@ class Puzzle:
             print("Origin = ")
             for i in range(0, len(self.starter.puzzle)):
                 print(self.starter.puzzle[i])
-
         while True:
             #print("One round")
             loop += 1
-            if loop > 10:
+            if loop > 10000:
                 print("End too long, total try = ", loop)
                 sys.exit()
             current = self.best_choice()
@@ -71,20 +70,15 @@ class Puzzle:
             self.used.append(current)
             self.actives.remove(current)
             for i in paths:
-                if (self.check_past_states(i.puzzle) == False):
-                    #paths.remove(i)
-                    if(i.puzzle != current.puzzle):
-                        print("Deleting this:", i.puzzle)
-                    print("Deleting one!")
-                else:
+                if (self.check_past_states(i.puzzle) != False):
                     self.actives.append(i)
-            if (self.debug == True):
-                print("totals paths = ", len(self.actives), " Added ", len(paths), "new ones, they are: ")
-                for i in paths:
-                    print("///////////")
-                    for j in range(0, len(i.puzzle)):
-                        print(i.puzzle[j])
-                    print("its f and h value = ", i.f, i.h)
+            # if (self.debug == True):
+            #     print("totals paths = ", len(self.actives), " Added new ones, they are: ")
+            #     for i in paths: #Careful it count not selected path too
+            #             print("///////////")
+            #             for j in range(0, len(i.puzzle)):
+            #                 print(i.puzzle[j])
+            #             print("its f and h value = ", i.f, i.h)
 
         print("Finished in a total of ", loop, "loops in algo")
         for i in range(0, len(current.puzzle)):
