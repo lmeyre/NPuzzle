@@ -9,12 +9,11 @@ class Puzzle:
     def __init__(self, puzzle, heuristic):
         self.size = len(puzzle)
         HeuristicValue.heuristic = E_Heuristic(heuristic)
-        self.create_goal(puzzle)
+        self.err = self.create_goal(puzzle)
         self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
         self.debug = False
-        #if (self.debug == True):
         print("We are using heuristic = ", E_Heuristic(heuristic))
 
     def check_valid_puzzle(self, origin_puzzle):
@@ -23,9 +22,9 @@ class Puzzle:
     def create_goal(self, origin_puzzle):
         self.goal = Utils.create_goal(origin_puzzle)
         if (self.check_valid_puzzle(origin_puzzle) == False):
-            print("Bad Puzzle forms")
-            sys.exit()
+            return "Puzzle is not solvable"
         HeuristicValue.goal = self.goal
+        return None
         
     def best_choice(self):
         if (len(self.actives) == 0):
@@ -87,4 +86,6 @@ class Puzzle:
             print(current.puzzle[i])
 
     def launch_puzzle(self):
+        if (self.err):
+            return self.err
         self.run_puzzle()

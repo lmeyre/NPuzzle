@@ -20,7 +20,9 @@ def main():
         return False
     # print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
     Solver = Puzzle.Puzzle(puzzle, args.heuristic)
-    Solver.launch_puzzle()
+    if (Solver.launch_puzzle()):
+        print("mes couilles")
+        sys.exit()
     return True
         
 if __name__ == '__main__':

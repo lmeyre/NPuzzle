@@ -12,25 +12,7 @@ class E_Heuristic(Enum):
 class HeuristicValue:
 
     heuristic = E_Heuristic.MANHATTAN
-    # goal = [[0,0,0],[0,0,0],[0,0,0]]
     goal = []
-    #instance = HeuristicValue()
-
-    # @staticmethod
-    # def assign_type(heur):
-    #     # print("here heur = ", heur)
-    #     # print("man = ", E_Heuristic.MANHATTAN)
-    #     #tmp 
-    #     heur = E_Heuristic.MANHATTAN
-    #     if (heur == E_Heuristic.MANHATTAN):
-    #         HeuristicValue.heuristic = E_Heuristic.MANHATTAN
-    #     else:
-    #         print("enum non handled error")
-    
-    # @staticmethod
-    # def assign_goal(goal_target):
-    #     goal = goal_target
-    #     print("assigned goal", goal)
 
     @staticmethod
     def return_h(state):
@@ -44,7 +26,7 @@ class HeuristicValue:
             print("Non handled Enum type")
 
     @staticmethod
-    def check_manhattan(curr):
+    def h_manhattan(curr):
         difference = 0
         for i in range(0, len(curr.puzzle)):
             for j in range(0, len(curr.puzzle)):
@@ -69,6 +51,16 @@ class HeuristicValue:
         # for row in HeuristicValue.goal:
         #     print(row)
         return conflict_value + base_h
+    
+    @staticmethod
+    def check_out_of_place(curr):
+        difference = 0
+        for i in range(0, len(curr.puzzle)):
+            #print(curr.puzzle[i])
+            for j in range(0, len(curr.puzzle)):
+                if curr.puzzle[i][j] != HeuristicValue.goal[i][j]:
+                    difference += 1
+        return difference
 
 def find_conflict(puzzle, goal):
     #row
@@ -143,21 +135,6 @@ def return_goal_line(is_colum, target, goal):#Return the line or the colum the n
                 if row[colum] == target:
                     #print("The goal col for ", target, " is ", colum)
                     return colum
-
-
-    #Old manhattan -> not manhattan but heuristic: pieces out of place
-    # @staticmethod
-    # def check_manhattan(curr):
-    #     difference = 0
-    #     #print("Comparing goal and this puzzle :")
-    #     for i in range(0, len(curr.puzzle)):
-    #         #print(curr.puzzle[i])
-    #         for j in range(0, len(curr.puzzle)):
-    #             if curr.puzzle[i][j] != HeuristicValue.goal[i][j]:
-    #                 difference += 1
-    #                 #print("A diff, puzzle = ", curr.puzzle[i][j], " and goal : ", HeuristicValue.goal[i][j])
-    #     #print("compared difference = ", difference)
-    #     return difference
 
 #on veut en faire un file comme dans util mais stock ici
 def return_distance(x1, y1, x2, y2):
