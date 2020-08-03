@@ -2,6 +2,7 @@ from State import State
 from Heuristic import HeuristicValue, E_Heuristic
 import sys
 import Utils
+import concurrent.futures
 
 #Faire remonter les exits
 class Puzzle:
@@ -104,10 +105,10 @@ class Puzzle:
         loop = 0
         while True:
             loop += 1
+            print("bound", bound)
             t = self.search(path, 0, bound)
             if t == True:
-                print("finished in %d loop" % loop)
-                print(path, bound)
+                print("finished in %d loop, %d coups" % (loop, len(path)))
                 return path, bound
             if t == float("inf"):
                 print("not found")
@@ -135,23 +136,23 @@ class Puzzle:
                 break
             paths = current.create_paths()
             self.used.append(current)
-            print("1 len = ", len(self.actives))
+            # print("1 len = ", len(self.actives))
             self.actives.remove(current)
-            print("2 len = ", len(self.actives))
+            # print("2 len = ", len(self.actives))
             for i in paths:
                 if (self.check_past_states(i.puzzle) == False):
                     # paths.remove(i)
                     print("Deleting one!")
                 else:
                     self.actives.append(i)
-            if (self.debug == True):
-                print("totals paths = ", len(self.actives), " Added ", len(paths), "new ones, they are: ")
-                for i in paths:
-                    print("///////////")
-                    for j in range(0, len(i.puzzle)):
-                        print(i.puzzle[j])
-                    print("its f and h value = ", i.f, i.h)
-            print("3 len = ", len(self.actives))
+            # if (self.debug == True):
+            #     print("totals paths = ", len(self.actives), " Added ", len(paths), "new ones, they are: ")
+            #     for i in paths:
+            #         print("///////////")
+            #         for j in range(0, len(i.puzzle)):
+            #             print(i.puzzle[j])
+            #         print("its f and h value = ", i.f, i.h)
+            # print("3 len = ", len(self.actives))
 
         print("Finished in a total of ", loop, "loops in algo")
         for i in range(0, len(current.puzzle)):

@@ -20,8 +20,13 @@ def main():
         return False
     # print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
     Solver = Puzzle.Puzzle(puzzle, args.heuristic)
-    # Solver.launch_puzzle()
-    print(Solver.ida_star())
+    import time
+    start_time = time.time()
+    Solver.launch_puzzle()
+    print("A* in time : ", time.time() - start_time)
+    start_time = time.time()
+    Solver.ida_star()
+    print("IDA* in time : ", time.time() - start_time)
     return True
         
 if __name__ == '__main__':
