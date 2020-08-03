@@ -8,12 +8,14 @@ class Puzzle:
 
     def __init__(self, puzzle, heuristic):
         self.size = len(puzzle)
-        HeuristicValue.heuristic = E_Heuristic.LINEAR_CONFLICT
+        HeuristicValue.heuristic = E_Heuristic(heuristic)
         self.create_goal(puzzle)
         self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
         self.debug = False
+        #if (self.debug == True):
+        print("We are using heuristic = ", E_Heuristic(heuristic))
 
     def check_valid_puzzle(self, origin_puzzle):
         return Utils.is_solvable(origin_puzzle, self.goal)
