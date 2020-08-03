@@ -101,11 +101,6 @@ def find_pos(number, puzzle):
     print("Error, was looking for ", number, " in puzzle = ", puzzle)
     return 0, 0
 
-def return_distance(x1, y1, x2, y2):
-    finalX = abs(x1 - x2)
-    finalY = abs(y1 - y2)
-    return (finalX + finalY)
-
 def get_goal_snail(start):
     size = len(start)
     # Init goat 2d tab
