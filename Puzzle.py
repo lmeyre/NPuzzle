@@ -13,7 +13,7 @@ class Puzzle:
         self.starter = State(puzzle, 0, None)
         self.actives = []
         self.used = []
-        self.debug = False
+        self.debug = True
         print("We are using heuristic = ", E_Heuristic(heuristic))
 
     def check_valid_puzzle(self, origin_puzzle):
