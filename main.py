@@ -20,14 +20,15 @@ def main():
         return False
     # print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
     Solver = Puzzle.Puzzle(puzzle, args.heuristic)
-    if (Solver.launch_puzzle()):
-        print("mes couilles")
-        sys.exit()
+    err = Solver.launch_puzzle()
+    if err:
+        print("n-puzzle error: %s" % err)
+        return False
     return True
         
 if __name__ == '__main__':
     try:
          if main() == False:
-             sys.exit(1)
+            sys.exit(1)
     except KeyboardInterrupt:
         sys.exit(0)

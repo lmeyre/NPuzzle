@@ -17,7 +17,7 @@ class HeuristicValue:
     @staticmethod
     def return_h(state):
         if (HeuristicValue.heuristic == E_Heuristic.MANHATTAN):
-            return HeuristicValue.check_manhattan(state)
+            return HeuristicValue.h_manhattan(state)
         elif (HeuristicValue.heuristic == E_Heuristic.OUT_OF_PLACE):
             return 0 # To manage
         elif (HeuristicValue.heuristic == E_Heuristic.LINEAR_CONFLICT):
@@ -42,7 +42,7 @@ class HeuristicValue:
         # on confirme : ils sont sur la meme ligne
                         #l'un est a gauche de l'autre
                         #mais le goal de l'un est a droite du goal de l'autre
-        base_h = HeuristicValue.check_manhattan(curr)
+        base_h = HeuristicValue.h_manhattan(curr)
         conflict_value = find_conflict(curr.puzzle, HeuristicValue.goal)
         #print("total = ", (conflict_value + base_h), " with a conflict = ", conflict_value, "state look like this :")
         # for row in curr.puzzle:

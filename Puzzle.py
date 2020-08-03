@@ -10,19 +10,20 @@ class Puzzle:
         self.size = len(puzzle)
         HeuristicValue.heuristic = E_Heuristic(heuristic)
         self.err = self.create_goal(puzzle)
-        self.starter = State(puzzle, 0, None)
-        self.actives = []
-        self.used = []
-        self.debug = True
-        print("We are using heuristic = ", E_Heuristic(heuristic))
+        if not self.err:
+            self.starter = State(puzzle, 0, None)
+            self.actives = []
+            self.used = []
+            self.debug = False
+            print("We are using heuristic = ", E_Heuristic(heuristic))
 
     def check_valid_puzzle(self, origin_puzzle):
         return Utils.is_solvable(origin_puzzle, self.goal)
 
     def create_goal(self, origin_puzzle):
         self.goal = Utils.create_goal(origin_puzzle)
-        if (self.check_valid_puzzle(origin_puzzle) == False):
-            return "Puzzle is not solvable"
+        if not self.check_valid_puzzle(origin_puzzle):
+            return "puzzle is unsolvable"
         HeuristicValue.goal = self.goal
         return None
         
@@ -89,3 +90,4 @@ class Puzzle:
         if (self.err):
             return self.err
         self.run_puzzle()
+        return None
