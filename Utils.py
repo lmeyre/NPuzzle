@@ -188,3 +188,14 @@ def is_solvable(start, goal):
     if inversions % 2:
         return True
     return False
+
+def display_winning_sequence(final, initial):
+    if (final.parent != None):
+        display_winning_sequence(final.parent, False)
+    for row in final.puzzle:
+        print(row)
+    if not (initial):
+        print("      ")
+        print("    |")
+        print("    V")
+        print("      ")
