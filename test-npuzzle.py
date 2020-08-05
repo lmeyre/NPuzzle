@@ -66,8 +66,8 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--number", type=int, help="Number of times the tests will be done")
     parser.add_argument('-u', "--unsolvable", action="store_true", default=False)
     parser.add_argument('-s', "--solvable", action="store_true", default=False)
-    parser.add_argument('-H', '--heuristic', type=int, choices=[0, 1, 2],
-                        help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict')
+    parser.add_argument('-H', '--heuristic', type=int, choices=[0, 1, 2, 3],
+                        help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict, 3 = Corner Tiles')
     args = parser.parse_args()
 
     options = " generated_puzzle.txt "
@@ -97,12 +97,12 @@ if __name__ == "__main__":
             exec_npuzzle(options, args.heuristic)
     else:
         times = {}
-        for i in range(3):
+        for i in range(4):
             generate_puzzle(args)
             option = "-H " + str(i) + options
             t = exec_npuzzle(option, i)
             if t:
-                times[i] = round(t, 4)
+                times[i] = t
         if len(times):
             print(c.OKBLUE + "Ranking in time of execution:" + c.ENDC)
             for i in sorted(times.items(), key=lambda item: item[1]):

@@ -8,6 +8,7 @@ class E_Heuristic(Enum):
     MANHATTAN = 0
     OUT_OF_PLACE = 1
     LINEAR_CONFLICT = 2
+    CORNER_TILE = 3
 
 class HeuristicValue:
 
@@ -22,6 +23,8 @@ class HeuristicValue:
             return 0 # To manage
         elif (HeuristicValue.heuristic == E_Heuristic.LINEAR_CONFLICT):
             return HeuristicValue.check_linear_conflict(state)
+        elif (HeuristicValue.heuristic == E_Heuristic.CORNER_TILE):
+            return HeuristicValue.h_corner_tile(state)
         else:
             print("Non handled Enum type")
 
@@ -36,6 +39,47 @@ class HeuristicValue:
                     difference += return_distance(x, y, i, j)
         #print(difference, " is diff")
         return difference
+    
+    @staticmethod
+    def h_corner_tile(curr):
+        print(curr.puzzle)
+        base_h = HeuristicValue.h_manhattan(curr)
+        size = len(curr.puzzle)
+        for i in range(0, size):
+            for j in range(0, size):
+                if (curr.puzzle[i][j] == 0):
+                    pass
+                # Corner tiles
+                # Top left
+                if i == 0 and j == 0:
+                    # print("tl", curr.puzzle[i][j], i, j)
+                    if curr.puzzle[i][j + 1] == HeuristicValue.goal[i][j + 1]:
+                        base_h += 2
+                    if curr.puzzle[i + 1][j] == HeuristicValue.goal[i + 1][j]:
+                        base_h += 2
+                # Top right
+                elif i == 0  and j == size - 1:
+                    # print("tr", curr.puzzle[i][j], i, j)
+                    if curr.puzzle[i][j - 1] == HeuristicValue.goal[i][j - 1]:
+                        base_h += 2
+                    if curr.puzzle[i + 1][j] == HeuristicValue.goal[i + 1][j]:
+                        base_h += 2
+                # Bottom left
+                elif i == size - 1 and j == 0:
+                    # print("bl", curr.puzzle[i][j], i, j)
+                    if curr.puzzle[i][j + 1] == HeuristicValue.goal[i][j + 1]:
+                        base_h += 2
+                    if curr.puzzle[i - 1][j] == HeuristicValue.goal[i - 1][j]:
+                        base_h += 2
+                # Bottom right
+                elif i == size - 1 and j == size - 1:
+                    # print("br", curr.puzzle[i][j], i, j)
+                    if curr.puzzle[i][j - 1] == HeuristicValue.goal[i][j - 1]:
+                        base_h += 2
+                    if curr.puzzle[i - 1][j] == HeuristicValue.goal[i - 1][j]:
+                        base_h += 2
+        print("after", base_h)
+        return base_h
 
     @staticmethod
     def check_linear_conflict(curr):
