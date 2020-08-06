@@ -1,7 +1,14 @@
 from State import State
+from enum import Enum
 from Heuristic import HeuristicValue, E_Heuristic
 import sys
 import Utils
+
+class E_Search(Enum):
+    A_STAR = 0
+    IDA_STAR = 1
+    UNIFORM_COST = 2
+    GREEDY_SEARCH = 3
 
 #Faire remonter les exits
 class Puzzle:
@@ -12,6 +19,9 @@ class Puzzle:
         self.err = self.create_goal(puzzle)
         if not self.err:
             self.starter = State(puzzle, 0, None)
+            print("start :")
+            for row in self.starter.puzzle:
+                print(row)
             self.actives = []
             self.used = []
             self.debug = False
@@ -26,10 +36,8 @@ class Puzzle:
             return "puzzle is unsolvable"
         HeuristicValue.goal = self.goal
         return None
-        
-    def best_choice(self):
-        if (len(self.actives) == 0):
-            print("actives are EMPTY !!")
+
+    def a_star(self):
         best = self.actives[0]
         bestF = self.actives[0].f
         for i in self.actives:
@@ -38,11 +46,34 @@ class Puzzle:
                 best = i
         if (self.debug):
             print("Path selected, we selected this with a value of F,H,G", bestF, best.h, best.g)
-            print(best.puzzle)
+            #print(best.puzzle)
+        return best
+    
+    def greedy_search(self):
+        best = self.actives[0]
+        bestH = self.actives[0].h
+        for i in self.actives:
+            if i.h < bestH:
+                bestH = i.h
+                best = i
+        if (self.debug):
+            print("Path selected, we selected this with a value of H", bestH)
+            #print(best.puzzle)
+        return best
+    
+    def uniform_cost_search(self):
+        best = self.actives[0]
+        bestG = self.actives[0].g
+        for i in self.actives:
+            if i.g < bestG:
+                bestG = i.g
+                best = i
+        if (self.debug):
+            print("Path selected, we selected this with a value of G", bestG)
+            #print(best.puzzl
         return best
 
     def check_past_states(self, newState):
-        #remettre quand ca marchera  
         for i in self.actives:
             if (newState == i.puzzle):
                 return False
@@ -52,42 +83,54 @@ class Puzzle:
         return True
 
         
-    def run_puzzle(self):
+    def run_puzzle(self, hide, algo):
         loop = 0
         self.actives.append(self.starter)
         if self.debug:
             print("Origin = ")
             for i in range(0, len(self.starter.puzzle)):
                 print(self.starter.puzzle[i])
+        current = None
         while True:
-            #print("One round")
             loop += 1
             if loop > 10000:
                 print("End too long, total try = ", loop)
+                print("our state was ")
+                for row in current.puzzle:
+                    print(row)
+                print(" its h value was ", current.h)
                 sys.exit()
-            current = self.best_choice()
+            #///////////////////////////
+            if algo == E_Search.A_STAR:#for now we have if -> later call 3 different for A*, greedy etc  | on le fait a la fin car sinon on va devoir rajouter le debug dans les 3 fonction a chaque fois
+                current = self.a_star()
+            elif algo == E_Search.UNIFORM_COST:
+                current = self.uniform_cost_search()
+            elif algo == E_Search.GREEDY_SEARCH:
+                current = self.greedy_search()
+            # elif algo == E_Search.IDA_STAR:
+            #     current = self.ida_star():
             if (current.h == 0):
                 break
             paths = current.create_paths()
             self.used.append(current)
             self.actives.remove(current)
             for i in paths:
-                if (self.check_past_states(i.puzzle) != False):
+                if self.check_past_states(i.puzzle):
                     self.actives.append(i)
-            # if (self.debug == True):
-            #     print("totals paths = ", len(self.actives), " Added new ones, they are: ")
-            #     for i in paths: #Careful it count not selected path too
-            #             print("///////////")
-            #             for j in range(0, len(i.puzzle)):
-            #                 print(i.puzzle[j])
-            #             print("its f and h value = ", i.f, i.h)
 
         print("Finished in a total of ", loop, "loops in algo")
         for i in range(0, len(current.puzzle)):
             print(current.puzzle[i])
+        print("Complexity in time : ", (len(self.used) + len(self.actives)))
+        #Missing complexity in size here
+        print("The original state was solved in ", current.g, "moves")
+        if not(hide):
+            print("Winning sequence from start to end : \n")
+            Utils.display_winning_sequence(current, True)
 
-    def launch_puzzle(self):
+    def launch_puzzle(self, hide, algo):
+        print("Using algorythm : ", algo)
         if (self.err):
             return self.err
-        self.run_puzzle()
+        self.run_puzzle(hide, algo)
         return None

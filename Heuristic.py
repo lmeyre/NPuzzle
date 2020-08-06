@@ -39,7 +39,7 @@ class HeuristicValue:
                     difference += return_distance(x, y, i, j)
         #print(difference, " is diff")
         return difference
-    
+
     @staticmethod
     def h_corner_tile(curr):
         base_h = HeuristicValue.h_manhattan(curr)
