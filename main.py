@@ -7,15 +7,15 @@ import Puzzle
 import Utils
 
 def main():
-    parser = arg.ArgumentParser(description='This program solves n-puzzle')
-    parser.add_argument('file', type=str, nargs='?', help='A file that contains the puzzle to be solved')
+    parser = arg.ArgumentParser(description='This program solves N-Puzzle')
+    parser.add_argument('file', type=str, nargs='?', help='file that contains the puzzle to be solved')
     parser.add_argument('-H', '--heuristic', type=int, nargs='?', choices=[0, 1, 2, 3], default=0,
-                    help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict, 3 = Corner Tiles')
-    parser.add_argument("--hide", action="store_true", default=False)
+                    help='the heuristic function to use : 0 = manhattan (default), 1 = out of place, 2 = linear conflict, 3 = corner tiles')
+    parser.add_argument("--hide", action="store_true", default=False, help="???")
     algos = parser.add_mutually_exclusive_group()
-    algos.add_argument('--ida', action="store_true")
-    algos.add_argument('--uniformcost', action="store_true")
-    algos.add_argument('--greedy', action="store_true")
+    algos.add_argument('--ida', action="store_true", help="use the IDA* algorithm")
+    algos.add_argument('--uniformcost', action="store_true", help="use the Uniform Cost algorithm")
+    algos.add_argument('--greedy', action="store_true", help="use the Greedy Search algorithm")
     args = parser.parse_args()
 
     p = Parsing.Parsing()
