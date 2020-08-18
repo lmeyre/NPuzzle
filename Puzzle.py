@@ -24,8 +24,21 @@ class Puzzle:
                 print(row)
             self.actives = []
             self.used = []
+            # Number of states used with ida
+            self.ida_used = 0
+            self.complexity_size = 0
             self.debug = False
             print("We are using heuristic = ", E_Heuristic(heuristic))
+
+    def update_complexity_size(self):
+        if len(self.actives) > self.complexity_size:
+            self.complexity_size = len(self.actives)
+
+    def get_complexity_time(self):
+        if self.ida_used:
+            return self.ida_used
+        else:
+            return len(self.used) + len(self.actives)
 
     def check_valid_puzzle(self, origin_puzzle):
         return Utils.is_solvable(origin_puzzle, self.goal)
@@ -82,14 +95,41 @@ class Puzzle:
                 return False
         return True
 
+    def search_ida(self, g, bound):
+        node = self.actives[-1]
+        f = g + node.h
+        if f > bound:
+            return f
+        if node.puzzle == self.goal:
+            return True
+        mini = float("inf")
+        for succ in node.create_paths():
+            if succ not in self.actives:
+                self.actives.append(succ)
+                self.update_complexity_size()
+                t = self.search_ida(g + 1, bound)
+                if t == True:
+                    return True
+                if t < mini:
+                    mini = t
+                self.ida_used += 1
+                self.actives.pop()
+        return mini
+
+    def ida_star(self):
+        t = self.search_ida(0, self.bound)
+        self.bound = t
+        return self.actives[-1]
         
     def run_puzzle(self, hide, algo):
         loop = 0
+        self.bound = self.starter.h
         self.actives.append(self.starter)
         if self.debug:
             print("Origin = ")
             for i in range(0, len(self.starter.puzzle)):
                 print(self.starter.puzzle[i])
+
         current = None
         while True:
             loop += 1
@@ -107,29 +147,37 @@ class Puzzle:
                 current = self.uniform_cost_search()
             elif algo == E_Search.GREEDY_SEARCH:
                 current = self.greedy_search()
-            # elif algo == E_Search.IDA_STAR:
-            #     current = self.ida_star():
+            elif algo == E_Search.IDA_STAR:
+                current = self.ida_star()
+            self.update_complexity_size()
             if (current.h == 0):
                 break
-            paths = current.create_paths()
-            self.used.append(current)
-            self.actives.remove(current)
-            for i in paths:
-                if self.check_past_states(i.puzzle):
-                    self.actives.append(i)
-
+            #
+            # Pas besoin pour ida star je dois le faire dans la récursion
+            # Je stocke le nombre de "used" dans un int vue que j'ai pas besoin des anciens
+            #
+            if algo != E_Search.IDA_STAR:
+                paths = current.create_paths()
+                self.used.append(current)
+                self.actives.remove(current)
+                for i in paths:
+                    if self.check_past_states(i.puzzle):
+                        self.actives.append(i)
+        # On en aura besoin apres du nombre de loop? Ou c'est juste la complexity in time qui compte?
         print("Finished in a total of ", loop, "loops in algo")
         for i in range(0, len(current.puzzle)):
             print(current.puzzle[i])
-        print("Complexity in time : ", (len(self.used) + len(self.actives)))
-        #Missing complexity in size here
+        complexity_time = self.get_complexity_time()
+        print("Complexity in time : ", complexity_time)
+        # A verifier si c'est la bonne valeur
+        print("Complexity in size : ", self.complexity_size)
         print("The original state was solved in ", current.g, "moves")
         if not(hide):
             print("Winning sequence from start to end : \n")
             Utils.display_winning_sequence(current, True)
 
     def launch_puzzle(self, hide, algo):
-        print("Using algorythm : ", algo)
+        print("Using algorithm : ", algo)
         if (self.err):
             return self.err
         self.run_puzzle(hide, algo)
