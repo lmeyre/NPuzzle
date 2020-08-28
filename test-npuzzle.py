@@ -5,8 +5,13 @@ import subprocess
 import os
 import sys
 import argparse as arg
+import re
+import pandas as pd
 
-class c:
+# Colors
+
+
+class c(object):
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -16,95 +21,161 @@ class c:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def exec_npuzzle(options, h):
-    start_time = time.time()
-    cmd = "python3 main.py " + options
-    try:
-        out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as exc:
-        print("Npuzzle returned an " + c.FAIL + "error" + c.ENDC + ": %d" % exc.returncode)
-        print(c.OKBLUE + "Npuzzle output :\n" + c.ENDC)
-        print(exc.output.decode())
-        return None
-    calc_time = time.time() - start_time
-    print(("Npuzzle executed with the "+ c.OKBLUE + "heuristic" + c.ENDC + ": %d, " + c.OKBLUE + "time" + c.ENDC + ": %f" + c.ENDC) % (h, round(calc_time, 4)))
-    print(c.OKBLUE + "Npuzzle output :\n" + c.ENDC)
-    output = out.decode()
-    print(output)
-    print(c.OKBLUE + "-----------\n" + c.ENDC)
-    # for line in out.splitlines():
-    #     words = line.split()
-    #     if words[0].decode() == "Finished":
-    #         print("Number of " + c.OKBLUE + "loops returned" + c.ENDC + " : ", words[5].decode())
-    return calc_time, output
 
-def generate_puzzle(args):
-    generator = "python npuzzle-gen.py "
-    if args.unsolvable:
-        generator += "-u "
-    elif args.solvable:
-        generator += "-s "
-    if args.size and args.size >= 3:
-        generator += str(args.size)
-    else:
-        print("please enter a valid size")
-        sys.exit(1)
-    generator += " > generated_puzzle.txt"
-    os.system(generator)
+class Npuzzle(object):
 
-    file = open("generated_puzzle.txt")
-    print(c.OKBLUE + "Tested file :\n" + c.ENDC)
-    puzzle = file.read()
-    print(puzzle)
-    print(c.OKBLUE + "-----------\n" + c.ENDC)
-    file.close()
-    return puzzle
+    def __init__(self, algo_opt=None, heuristic_opt=None):
+        self.time = 0
+        self.cmd = "python3 main.py --hide {algo} {heuristic} generated_puzzle.txt".format(
+            algo=algo_opt, heuristic=heuristic_opt)
+        self.algo = algo_opt
+        self.h = heuristic_opt
+
+    def parse_output(self):
+        crash = re.search(
+            r'End too long, total try =\s*([0-9]*)', self.out.decode())
+        if crash:
+            return {
+                'nb_moves': None,
+                'complexity_time': None,
+                'complexity_size': None,
+                'nb_loops': crash.group(1),
+                'time': round(self.time, 3)
+            }
+        self.out_heuristic = re.search(
+            r'E_Heuristic.([A-Z|_]*)', self.out.decode()).group(1)
+        self.out_algo = re.search(
+            r'E_Search.([A-Z|_]*)', self.out.decode()).group(1)
+        self.nb_moves = re.search(
+            r'The original state was solved in\s*([0-9]*)', self.out.decode()).group(1)
+        self.complexity_time = re.search(
+            r'Complexity in time :\s*([0-9]*)', self.out.decode()).group(1)
+        self.complexity_size = re.search(
+            r'Complexity in size :\s*([0-9]*)', self.out.decode()).group(1)
+        self.nb_loops = re.search(
+            r'Finished in a total of\s*([0-9]*)', self.out.decode()).group(1)
+        results = {
+            'nb_moves': self.nb_moves,
+            'complexity_time': self.complexity_time,
+            'complexity_size': self.complexity_size,
+            'nb_loops': self.nb_loops,
+            'time': round(self.time, 3)
+        }
+        return results
+
+    def run(self):
+        start_time = time.time()
+        try:
+            self.out = subprocess.check_output(
+                self.cmd, shell=True, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as exc:
+            print("Npuzzle returned an " + c.FAIL +
+                  "error" + c.ENDC + ": %d" % exc.returncode)
+            print(c.OKBLUE + "Npuzzle output :\n" + c.ENDC)
+            print(exc.output.decode())
+            return None
+        self.time = time.time() - start_time
+
+
+class Process(object):
+
+    available_algorithms = {'a_star': ' ', 'ida_star': ' --ida ',
+                            'greedy': ' --greedy ', 'uniform_cost': ' --uniformcost '}
+    # 0 = Manhattan
+    # 1 = Out of place
+    # 2 = Linear conflict
+    # 3 = Corner Tiles
+    available_heuristics = {0: ' -H 0 ', 1: ' -H 1 ', 2: ' -H 2 ', 3: ' -H 3 '}
+    heuristics_named = {0: 'Manhattan', 1: 'Out of place',
+                        2: 'Linear conflict', 3: 'Corner Tiles'}
+    algo_named = {'a_star': 'A *', 'ida_star': 'IDA *',
+                  'greedy': 'Greedy search', 'uniform_cost': 'Uniform cost'}
+    generator_cmd = 'python2 npuzzle-gen.py {solve_opt} {size} > generated_puzzle.txt'
+
+    def __init__(self, algo=None, heuristic=None):
+        if algo:
+            self.algorithms = {algo: self.available_algorithms[algo]}
+        else:
+            self.algorithms = self.available_algorithms
+
+        if heuristic:
+            self.heuristics = {heuristic: self.available_heuristics[heuristic]}
+        else:
+            self.heuristics = self.available_heuristics
+
+    def launch(self):
+        row_names = {}
+        i = 0
+        process_results = []
+        for algo_key, algo_v in self.algorithms.items():
+            for h_key, h_v in self.heuristics.items():
+                print("Launching %s with heuristic %s" %
+                      (self.algo_named[algo_key], self.heuristics_named[h_key]))
+                n = Npuzzle(algo_opt=algo_v, heuristic_opt=h_v)
+                n.run()
+                process_results.append(n.parse_output())
+                row_names[i] = "(%s + %s)" % (self.algo_named[algo_key],
+                                              self.heuristics_named[h_key])
+                i += 1
+        df = pd.DataFrame(process_results)
+        df = df.rename(index=row_names)
+        return df
+
+    def generate_puzzle(self, args):
+        if args.unsolvable:
+            solve_opt = '-u'
+        elif args.solvable:
+            solve_opt = '-s'
+        else:
+            solve_opt = ''
+        if args.size and args.size >= 3:
+            size = str(args.size)
+        else:
+            # gerer l'erreur
+            print("please enter a valid size")
+            sys.exit(1)
+        self.cmd = self.generator_cmd.format(solve_opt=solve_opt, size=size)
+        # Exec the generator
+        os.system(self.cmd)
+        self.get_generated_puzzle()
+        return self.get_generated_puzzle()
+
+    def get_generated_puzzle(self):
+        file = open("generated_puzzle.txt")
+        print(c.OKBLUE + "Tested file :\n" + c.ENDC)
+        puzzle = file.read()
+        print(puzzle)
+        print(c.OKBLUE + "-----------\n" + c.ENDC)
+        file.close()
+        return puzzle
+
 
 if __name__ == "__main__":
     parser = arg.ArgumentParser(description='This program solves n-puzzle')
-    parser.add_argument("size", type=int, nargs='?', help="Size of the puzzle's side. Must be >3.")
-    parser.add_argument("-n", "--number", type=int, help="Number of times the tests will be done")
-    parser.add_argument('-u', "--unsolvable", action="store_true", default=False)
+    parser.add_argument("size", type=int, nargs='?',
+                        help="Size of the puzzle's side. Must be >3.")
+    # parser.add_argument("-n", "--number", type=int, help="Number of times the tests will be done. Work only with one heuristic and one algo")
+    parser.add_argument('-u', "--unsolvable",
+                        action="store_true", default=False)
     parser.add_argument('-s', "--solvable", action="store_true", default=False)
     parser.add_argument('-H', '--heuristic', type=int, choices=[0, 1, 2, 3],
                         help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict, 3 = Corner Tiles')
+    parser.add_argument('-A', '--algo', type=str, choices=['a_star', 'ida_star', 'greedy', 'uniform_cost'],
+                        help='The algo type to use')
+    parser.add_argument('-S', '--sort', type=str, choices=['nb_moves', 'complexity_time', 'complexity_size', 'nb_loops', 'time'],
+                        help='Sort the table by a column name')
     args = parser.parse_args()
 
-    options = " generated_puzzle.txt "
-    if args.heuristic:
-        option = "-H " + str(args.heuristic) + options
-        if args.number:
-            puzzle_times = {}
-            for i in range(args.number):
-                puzzle = generate_puzzle(args)
-                t, out = exec_npuzzle(options, args.heuristic)
-                puzzle_times[round(t, 4)] = [puzzle, out]
-            sorted_puzzle_times = {k: v for k, v in sorted(puzzle_times.items(), reverse=True)}
-            print(c.WARNING + "RANK 3 SLOWER PUZZLES:" + c.ENDC)
-            i = 0
-            for key, value in sorted_puzzle_times.items():
-                    print(c.WARNING + "Time :" + c.ENDC, key)
-                    print(c.WARNING + "Puzzle :" + c.ENDC)
-                    print(value[0], end='')
-                    print(c.WARNING + "Output :" + c.ENDC, end='')
-                    print(value[1])
-                    print(c.WARNING + "-----------" + c.ENDC)
-                    i += 1
-                    if i >= 3:
-                        break
-        else:
-            generate_puzzle(args)
-            exec_npuzzle(options, args.heuristic)
+    p = Process(algo=args.algo, heuristic=args.heuristic)
+
+    p.generate_puzzle(args)
+    df = p.launch()
+    # Print the result in markdown
+    file = open("result.md", "w+")
+    file.write(df.to_markdown())
+    file.close()
+    # Print in stdout
+    if args.sort:
+        print(df.sort_values(by=[args.sort]).to_string())
     else:
-        times = {}
-        for i in range(4):
-            generate_puzzle(args)
-            option = "-H " + str(i) + options
-            t = exec_npuzzle(option, i)
-            if t:
-                times[i] = t
-        if len(times):
-            print(c.OKBLUE + "Ranking in time of execution:" + c.ENDC)
-            for i in sorted(times.items(), key=lambda item: item[1]):
-                print("[%d]: %fsec" % (i[0], i[1]))
-        
+        print(df.to_string())

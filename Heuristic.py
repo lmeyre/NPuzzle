@@ -20,7 +20,7 @@ class HeuristicValue:
         if (HeuristicValue.heuristic == E_Heuristic.MANHATTAN):
             return HeuristicValue.h_manhattan(state)
         elif (HeuristicValue.heuristic == E_Heuristic.OUT_OF_PLACE):
-            return 0 # To manage
+            return HeuristicValue.check_out_of_place(state)
         elif (HeuristicValue.heuristic == E_Heuristic.LINEAR_CONFLICT):
             return HeuristicValue.check_linear_conflict(state)
         elif (HeuristicValue.heuristic == E_Heuristic.CORNER_TILE):
