@@ -31,7 +31,7 @@ def main():
         algo = Puzzle.E_Search.GREEDY_SEARCH
     elif (args.ida):
         algo = Puzzle.E_Search.IDA_STAR
-    Solver = Puzzle.Puzzle(puzzle, args.heuristic)
+    Solver = Puzzle.Puzzle(puzzle, args)
     err = Solver.launch_puzzle(args.hide, algo)
     if err:
         print("n-puzzle error: %s" % err)

@@ -13,10 +13,10 @@ class E_Search(Enum):
 #Faire remonter les exits
 class Puzzle:
 
-    def __init__(self, puzzle, heuristic):
+    def __init__(self, puzzle, args):
         self.size = len(puzzle)
-        HeuristicValue.heuristic = E_Heuristic(heuristic)
-        self.err = self.create_goal(puzzle)
+        HeuristicValue.heuristic = E_Heuristic(args.heuristic)
+        self.err = self.create_goal(puzzle, args.goal_type)
         if not self.err:
             self.starter = State(puzzle, 0, None)
             print("start :")
