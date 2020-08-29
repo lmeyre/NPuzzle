@@ -1,5 +1,6 @@
 testfile
 generated_puzzle.txt
+result.*
 
 .vscode*
 

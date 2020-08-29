@@ -11,9 +11,14 @@ def main():
     parser.add_argument('file', type=str, nargs='?', help='file that contains the puzzle to be solved')
     parser.add_argument('-H', '--heuristic', type=int, nargs='?', choices=[0, 1, 2, 3], default=0,
                     help='the heuristic function to use : 0 = manhattan (default), 1 = out of place, 2 = linear conflict, 3 = corner tiles')
-    parser.add_argument("--hide", action="store_true", default=False, help="???")
+    parser.add_argument('-F', '--format', type=str, nargs='?', choices=['snail', 'classic'], default='snail',
+                    help='the format of the puzzle goal : snail (default) or classic')
+    # Rappel pour pas galerer, tu y a acces avec genre :
+    # if args.format == 'snail'
+    # bisous
+    parser.add_argument("--hide", action="store_true", default=False, help="hide the print of the full solution path")
     algos = parser.add_mutually_exclusive_group()
-    algos.add_argument('--ida', action="store_true", help="use the IDA* algorithm")
+    algos.add_argument('--ida', action="store_true", help="use the IDA * algorithm")
     algos.add_argument('--uniformcost', action="store_true", help="use the Uniform Cost algorithm")
     algos.add_argument('--greedy', action="store_true", help="use the Greedy Search algorithm")
     args = parser.parse_args()
