@@ -13,9 +13,6 @@ def main():
                     help='the heuristic function to use : 0 = manhattan (default), 1 = out of place, 2 = linear conflict, 3 = corner tiles')
     parser.add_argument('-F', '--format', type=str, nargs='?', choices=['snail', 'classic'], default='snail',
                     help='the format of the puzzle goal : snail (default) or classic')
-    # Rappel pour pas galerer, tu y a acces avec genre :
-    # if args.format == 'snail'
-    # bisous
     parser.add_argument("--hide", action="store_true", default=False, help="hide the print of the full solution path")
     algos = parser.add_mutually_exclusive_group()
     algos.add_argument('--ida', action="store_true", help="use the IDA * algorithm")
@@ -28,7 +25,6 @@ def main():
     if err:
         print("n-puzzle error: %s" % err)
         return False
-    # print("Solvable" if Utils.is_solvable(puzzle, Utils.get_goal_snail(puzzle)) else "Not solvable")
     algo = Puzzle.E_Search.A_STAR
     if (args.uniformcost):
         algo = Puzzle.E_Search.UNIFORM_COST
@@ -36,7 +32,7 @@ def main():
         algo = Puzzle.E_Search.GREEDY_SEARCH
     elif (args.ida):
         algo = Puzzle.E_Search.IDA_STAR
-    Solver = Puzzle.Puzzle(puzzle, args)
+    Solver = Puzzle.Puzzle(puzzle, args, algo)
     err = Solver.launch_puzzle(args.hide, algo)
     if err:
         print("n-puzzle error: %s" % err)
@@ -49,9 +45,3 @@ if __name__ == '__main__':
             sys.exit(1)
     except KeyboardInterrupt:
         sys.exit(0)
-
-#To keep , possible not working puzzle to test again after upgrade
-#  [4, 6, 15, 9]
-#  [0, 7, 8, 11]
-#  [1, 10, 3, 13] 
-#  [2, 14, 12, 5]    

@@ -6,9 +6,9 @@ def get_goal(size):
     return goal
 
 def create_goal(puzzle, goal_type):
-    if goal_type == 0:
+    if goal_type == 'snail':
         return goal_snail(puzzle)
-    elif goal_type == 1:
+    elif goal_type == 'classic':
         return goal_classic(puzzle)
 
 def goal_snail(puzzle): 
@@ -46,22 +46,12 @@ def goal_snail(puzzle):
             if (posY == minY):
                 way = 1
                 minY += 1
-    # print("Goal is ")
-    
-    # for i in range(0, len(goal)):
-    #     print(goal[i])
-    # print("///////")
     return goal
 
 def goal_classic(puzzle):
     size = len(puzzle)
     goal = [[size * y + x for x in range(1, size+1)] for y in range(size)]
     goal[size-1][size-1] = 0
-    print("Goal is ")
-    
-    for i in range(0, len(goal)):
-        print(goal[i])
-    print("///////")
     return goal
     
 def find_pos(number, puzzle):
