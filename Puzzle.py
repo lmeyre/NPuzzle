@@ -24,6 +24,7 @@ class Puzzle:
                 print(row)
             self.actives = queue.PriorityQueue()
             self.used = queue.PriorityQueue()
+            self.ida = []
             self.ida_used = 0
             self.complexity_size = 0
             self.debug = False
@@ -59,7 +60,7 @@ class Puzzle:
         return True
 
     def search_ida(self, g, bound):
-        node = self.actives[-1]#fix
+        node = self.ida[-1]
         f = g + node.h
         if f > bound:
             return f
@@ -67,8 +68,8 @@ class Puzzle:
             return True
         mini = float("inf")
         for succ in node.create_paths():
-            if succ not in self.actives:
-                self.actives.append(succ)#Fix
+            if succ not in self.ida:
+                self.ida.append(succ)
                 self.update_complexity_size()
                 t = self.search_ida(g + 1, bound)
                 if t == True:
@@ -76,13 +77,13 @@ class Puzzle:
                 if t < mini:
                     mini = t
                 self.ida_used += 1
-                self.actives.pop() # FIX
+                self.ida.pop()
         return mini
  
     def ida_star(self):
         t = self.search_ida(0, self.bound)
         self.bound = t
-        return self.actives[-1]#Fix
+        return self.ida[-1]
         
     def run_puzzle_ida(self):
         self.actives.put(self.starter)
