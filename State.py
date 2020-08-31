@@ -54,11 +54,12 @@ class State:
         if (y + 1 < self.size):
             paths.append(self.make_next_state(x, y + 1, x, y))
         if (len(paths) == 0):
+            # Debug??
             print("0 paths ? x = " , x, " y = ", y)
         return paths
 
     def get_queue_val(self, algo):
-        if algo == Puzzle.E_Search.A_STAR:
+        if algo == Puzzle.E_Search.A_STAR or algo == Puzzle.E_Search.IDA_STAR:
             return self.a_star()
         elif algo == Puzzle.E_Search.UNIFORM_COST:
             return self.uniform_cost_search()

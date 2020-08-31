@@ -19,16 +19,19 @@ class Puzzle:
         self.err = self.create_goal(puzzle, args.format)
         if not self.err:
             self.starter = State(puzzle, 0, None, algo)
-            print("start :")
+            print("Starting state :")
             for row in self.starter.puzzle:
                 print(row)
-            self.actives = queue.PriorityQueue()
-            self.used = queue.PriorityQueue()
-            self.ida = []
+            if algo == E_Search.IDA_STAR:
+                self.actives = queue.LifoQueue()
+            else:
+                self.actives = queue.PriorityQueue()
+                self.used = queue.PriorityQueue()
             self.ida_used = 0
+            self.ida = []
             self.complexity_size = 0
             self.debug = False
-            print("We are using heuristic = ", E_Heuristic(args.heuristic))
+            print("Using heuristic : %s" % E_Heuristic(args.heuristic).name)
 
     def update_complexity_size(self):
         if self.actives.qsize() > self.complexity_size:
@@ -59,31 +62,24 @@ class Puzzle:
                 return False
         return True
 
-    def search_ida(self, g, bound):
-        node = self.ida[-1]
-        f = g + node.h
-        if f > bound:
-            return f
-        if node.puzzle == self.goal:
+    def search_ida(self, bound):
+        current = self.actives.queue[-1]
+        if current.f > bound:
+            return current.f
+        if current.h == 0:
             return True
         mini = float("inf")
-        for succ in node.create_paths():
-            if succ not in self.ida:
-                self.ida.append(succ)
-                self.update_complexity_size()
-                t = self.search_ida(g + 1, bound)
-                if t == True:
-                    return True
-                if t < mini:
-                    mini = t
-                self.ida_used += 1
-                self.ida.pop()
+        for succ in current.create_paths():
+            self.actives.put(succ)
+            self.update_complexity_size()
+            t = self.search_ida(bound)
+            if t == True:
+                return True
+            if t < mini:
+                mini = t
+            self.ida_used += 1
+            self.actives.get()
         return mini
- 
-    def ida_star(self):
-        t = self.search_ida(0, self.bound)
-        self.bound = t
-        return self.ida[-1]
         
     def run_puzzle_ida(self):
         self.actives.put(self.starter)
@@ -91,7 +87,9 @@ class Puzzle:
         current = None
         while True:
             self.update_complexity_size()
-            current = self.ida_star()
+            t = self.search_ida(self.bound)
+            self.bound = t
+            current = self.actives.queue[-1]
             if (current.h == 0):
                 return current
 
@@ -113,15 +111,15 @@ class Puzzle:
         for i in range(0, len(final.puzzle)):
             print(final.puzzle[i])
         complexity_time = self.get_complexity_time()
-        print("Complexity in time : ", complexity_time)
-        print("Complexity in size : ", self.complexity_size)
-        print("The original state was solved in ", final.g, "moves")
+        print("Complexity in time : %d" % complexity_time)
+        print("Complexity in size : %d" % self.complexity_size)
+        print("The original state was solved in %d moves" % final.g)
         if not(hide):
             print("Winning sequence from start to end : \n")
             Utils.display_winning_sequence(final, True)
 
     def launch_puzzle(self, hide, algo):
-        print("Using algorithm : ", algo)
+        print("Using algorithm : %s" % algo.name)
         if (self.err):
             return self.err
         if algo != E_Search.IDA_STAR:
