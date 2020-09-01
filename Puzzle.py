@@ -26,7 +26,7 @@ class Puzzle:
                 self.actives = queue.LifoQueue()
             else:
                 self.actives = queue.PriorityQueue()
-                self.used = queue.PriorityQueue()
+                self.used = queue.LifoQueue()
             self.ida_used = 0
             self.ida = []
             self.complexity_size = 0
@@ -53,15 +53,16 @@ class Puzzle:
         HeuristicValue.goal = self.goal
         return None
 
-    def check_past_states(self, newState, current):
+    def check_past_states(self, newState, current, boost):
         if (current.parent is not None and newState.puzzle == current.parent.puzzle):
             return False
-        # for i in list(self.actives.queue):
-        #     if (newState.puzzle == i.puzzle and newState.priority >= i.priority):
-        #         return False
-        # for i in list(self.used.queue):
-        #     if (newState.puzzle == i.puzzle):
-        #         return False
+        if (boost is False)
+            for i in list(self.actives.queue):
+                if (newState.puzzle == i.puzzle and newState.priority >= i.priority):
+                    return False
+            for i in list(self.used.queue):
+                if (newState.puzzle == i.puzzle):
+                    return False
         return True
 
     def search_ida(self, bound):
@@ -95,26 +96,19 @@ class Puzzle:
             if (current.h == 0):
                 return current
 
-    def run_puzzle(self, algo):
-        val = 0
+    def run_puzzle(self, algo, boost):
         self.actives.put(self.starter)
         current = None
         while True:
-            val += 1
             self.update_complexity_size()
             current = self.actives.get()
-            if (val == 1000):
-                print("current F H G = ", current.f, "  ", current.h, "   ", current.g, " et actives / used", self.actives.qsize(), "/", self.used.qsize())
-                val = 0
-            #print("curr = ")
-            # for i in current.puzzle:
-            #     print(i)
             if (current.h == 0):
                 return current
-            paths = current.create_paths()
-            self.used.put(current, current.priority)
+            if not boost:
+                paths = current.create_paths()
+            self.used.put(current, current.priority, boost)
             for i in paths:
-                if self.check_past_states(i, current):
+                if self.check_past_states(i, current, boost):
                     self.actives.put(i, i.priority)
     
     def print_result(self, final, hide):
@@ -128,12 +122,12 @@ class Puzzle:
             print("Winning sequence from start to end : \n")
             Utils.display_winning_sequence(final, True)
 
-    def launch_puzzle(self, hide, algo):
+    def launch_puzzle(self, hide, algo, boost):
         print("Using algorithm : %s" % algo.name)
         if (self.err):
             return self.err
         if algo != E_Search.IDA_STAR:
-            final = self.run_puzzle(algo)
+            final = self.run_puzzle(algo, boost)
         else:
             final = self.run_puzzle_ida()
         self.print_result(final, hide)
