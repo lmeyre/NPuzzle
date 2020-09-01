@@ -43,22 +43,19 @@ class Npuzzle(object):
                 'time': round(self.time, 3)
             }
         self.out_heuristic = re.search(
-            r'E_Heuristic.([A-Z|_]*)', self.out.decode()).group(1)
+            r'Using heuristic :\s*([A-Z|_]*)', self.out.decode()).group(1)
         self.out_algo = re.search(
-            r'E_Search.([A-Z|_]*)', self.out.decode()).group(1)
+            r'Using algorithm :\s*([A-Z|_]*)', self.out.decode()).group(1)
         self.nb_moves = re.search(
             r'The original state was solved in\s*([0-9]*)', self.out.decode()).group(1)
         self.complexity_time = re.search(
             r'Complexity in time :\s*([0-9]*)', self.out.decode()).group(1)
         self.complexity_size = re.search(
             r'Complexity in size :\s*([0-9]*)', self.out.decode()).group(1)
-        self.nb_loops = re.search(
-            r'Finished in a total of\s*([0-9]*)', self.out.decode()).group(1)
         results = {
             'nb_moves': self.nb_moves,
             'complexity_time': self.complexity_time,
             'complexity_size': self.complexity_size,
-            'nb_loops': self.nb_loops,
             'time': round(self.time, 3)
         }
         return results
@@ -93,15 +90,10 @@ class Process(object):
     generator_cmd = 'python2 npuzzle-gen.py {solve_opt} {size} > generated_puzzle.txt'
 
     def __init__(self, algo=None, heuristic=None):
-        if algo:
-            self.algorithms = {algo: self.available_algorithms[algo]}
-        else:
-            self.algorithms = self.available_algorithms
-
-        if heuristic:
-            self.heuristics = {heuristic: self.available_heuristics[heuristic]}
-        else:
-            self.heuristics = self.available_heuristics
+        # self.algorithms = {algo: self.available_algorithms[algo]}
+        self.algorithms = {k: v for k, v in self.available_algorithms.items() if k in algo}
+        self.heuristics = {k: v for k, v in self.available_heuristics.items() if k in heuristic}
+        # self.heuristics = {heuristic: self.available_heuristics[heuristic]}
 
     def launch(self):
         row_names = {}
@@ -158,11 +150,11 @@ if __name__ == "__main__":
     parser.add_argument('-u', "--unsolvable",
                         action="store_true", default=False)
     parser.add_argument('-s', "--solvable", action="store_true", default=False)
-    parser.add_argument('-H', '--heuristic', type=int, choices=[0, 1, 2, 3],
+    parser.add_argument('-H', '--heuristic', nargs='+', type=int, choices=[0, 1, 2, 3], default=[0, 1, 2, 3],
                         help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict, 3 = Corner Tiles')
-    parser.add_argument('-A', '--algo', type=str, choices=['a_star', 'ida_star', 'greedy', 'uniform_cost'],
+    parser.add_argument('-A', '--algo', type=str, nargs='+', choices=['a_star', 'ida_star', 'greedy', 'uniform_cost'], default=['a_star', 'ida_star', 'greedy', 'uniform_cost'],
                         help='The algo type to use')
-    parser.add_argument('-S', '--sort', type=str, choices=['nb_moves', 'complexity_time', 'complexity_size', 'nb_loops', 'time'],
+    parser.add_argument('-S', '--sort', type=str, choices=['nb_moves', 'complexity_time', 'complexity_size', 'time'],
                         help='Sort the table by a column name')
     args = parser.parse_args()
 
