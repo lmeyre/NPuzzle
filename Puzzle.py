@@ -106,7 +106,7 @@ class Puzzle:
                 return current
             paths = current.create_paths()
             if boost is False:
-                self.used.put(current, current.priority, boost)
+                self.used.put(current, current.priority)
             for i in paths:
                 if self.check_past_states(i, current, boost):
                     self.actives.put(i, i.priority)
