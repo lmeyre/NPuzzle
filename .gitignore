@@ -1,5 +1,5 @@
 testfile
-generated_puzzle.txt
+generated_puzzle*.txt
 result.*
 
 .vscode*
