@@ -50,13 +50,15 @@ class Puzzle:
         HeuristicValue.goal = self.goal
         return None
 
-    def check_past_states(self, newState):
-        for i in list(self.actives.queue):
-            if (newState == i.puzzle):
-                return False
-        for i in list(self.used.queue):
-            if (newState == i.puzzle):
-                return False
+    def check_past_states(self, newState, current):
+        if (current.parent is not None and newState.puzzle == current.parent.puzzle):
+            return False
+        # for i in list(self.actives.queue):
+        #     if (newState.puzzle == i.puzzle and newState.priority >= i.priority):
+        #         return False
+        # for i in list(self.used.queue):
+        #     if (newState.puzzle == i.puzzle):
+        #         return False
         return True
 
     def search_ida(self, g, bound):
@@ -96,17 +98,25 @@ class Puzzle:
                 return current
 
     def run_puzzle(self, algo):
+        val = 0
         self.actives.put(self.starter)
         current = None
         while True:
+            val += 1
             self.update_complexity_size()
             current = self.actives.get()
+            if (val == 1000):
+                print("current F H G = ", current.f, "  ", current.h, "   ", current.g, " et actives / used", self.actives.qsize(), "/", self.used.qsize())
+                val = 0
+            #print("curr = ")
+            # for i in current.puzzle:
+            #     print(i)
             if (current.h == 0):
                 return current
             paths = current.create_paths()
             self.used.put(current, current.priority)
             for i in paths:
-                if self.check_past_states(i.puzzle):
+                if self.check_past_states(i, current):
                     self.actives.put(i, i.priority)
     
     def print_result(self, final, hide):

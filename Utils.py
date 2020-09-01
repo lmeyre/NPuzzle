@@ -59,7 +59,6 @@ def find_pos(number, puzzle):
         for j in range(0, len(puzzle)):
             if (puzzle[i][j] == number):
                 return i, j
-    print("Error, was looking for ", number, " in puzzle = ", puzzle)
     return 0, 0
 
 def get_inversions(numbers): 
