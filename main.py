@@ -17,10 +17,6 @@ def main():
     parser.add_argument('-b', "--boost", action="store_true", default=False, help="Optimisation, reduce the time")
     parser.add_argument('-A', '--algo', type=str, choices=['a_star', 'ida_star', 'greedy', 'uniform_cost'], default='a_star',
                         help='The algo')
-    # algos = parser.add_mutually_exclusive_group()
-    # algos.add_argument('--ida', action="store_true", help="use the IDA * algorithm")
-    # algos.add_argument('--uniformcost', action="store_true", help="use the Uniform Cost algorithm")
-    # algos.add_argument('--greedy', action="store_true", help="use the Greedy Search algorithm")
     args = parser.parse_args()
 
     p = Parsing.Parsing()

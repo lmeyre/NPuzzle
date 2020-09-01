@@ -53,9 +53,6 @@ class State:
             paths.append(self.make_next_state(x, y - 1, x, y))
         if (y + 1 < self.size):
             paths.append(self.make_next_state(x, y + 1, x, y))
-        if (len(paths) == 0):
-            # Debug??
-            print("0 paths ? x = " , x, " y = ", y)
         return paths
 
     def get_queue_val(self, algo):
