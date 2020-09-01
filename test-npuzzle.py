@@ -9,8 +9,6 @@ import re
 import pandas as pd
 
 # Colors
-
-
 class c(object):
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -24,10 +22,10 @@ class c(object):
 
 class Npuzzle(object):
 
-    def __init__(self, filename=None, algo_opt=None, heuristic_opt=None, more_options=""):
+    def __init__(self, filename=None, algo_opt=None, heuristic_opt=None):
         self.time = 0
-        self.cmd = "python3 main.py --hide {algo} {heuristic} {more_options} {filename}".format(
-            algo=algo_opt, heuristic=heuristic_opt, more_options=more_options, filename=filename if filename else "generated_puzzle.txt")
+        self.cmd = "python3 main.py --hide {algo} {heuristic} {filename}".format(
+            algo=algo_opt, heuristic=heuristic_opt, filename=filename if filename else "generated_puzzle.txt")
         self.algo = algo_opt
         self.h = heuristic_opt
 
@@ -76,8 +74,8 @@ class Npuzzle(object):
 
 class Process(object):
 
-    available_algorithms = {'a_star': ' -A a_star ', 'ida_star': '  -A ida_star ',
-                            'greedy': ' -A greedy ', 'uniform_cost': ' -A uniform_cost '}
+    available_algorithms = {'a_star': ' -A a_star ', 'a_star_boost': ' -A a_star -b ', 'ida_star': '  -A ida_star ',
+                            'greedy': ' -A greedy ', 'greedy_boost': ' -A greedy -b ', 'uniform_cost': ' -A uniform_cost ', 'uniform_cost_boost': ' -A uniform_cost -b '}
     # 0 = Manhattan
     # 1 = Out of place
     # 2 = Linear conflict
@@ -85,45 +83,30 @@ class Process(object):
     available_heuristics = {0: ' -H 0 ', 1: ' -H 1 ', 2: ' -H 2 ', 3: ' -H 3 '}
     heuristics_named = {0: 'Manhattan', 1: 'Out of place',
                         2: 'Linear conflict', 3: 'Corner Tiles'}
-    algo_named = {'a_star': 'A *', 'ida_star': 'IDA *',
-                  'greedy': 'Greedy search', 'uniform_cost': 'Uniform cost'}
-    generator_cmd = 'python2 npuzzle-gen.py {solve_opt} {size} > {filename}'
+    algo_named = {'a_star': 'A *', 'a_star_boost': 'A * boosted', 'ida_star': 'IDA *',
+                  'greedy': 'Greedy search', 'greedy_boost': 'Greedy search boosted', 'uniform_cost': 'Uniform cost', 'uniform_cost_boost': 'Uniform cost boosted'}
+    generator_cmd = 'python2 npuzzle-gen.py -s {size} > {filename}'
 
-    def __init__(self, algo=None, heuristic=None, boost=False):
-        # self.algorithms = {algo: self.available_algorithms[algo]}
+    def __init__(self, algo=None, heuristic=None):
         self.algorithms = {k: v for k,
                            v in self.available_algorithms.items() if k in algo}
         self.heuristics = {
             k: v for k, v in self.available_heuristics.items() if k in heuristic}
-        self.boost = boost
-        # self.heuristics = {heuristic: self.available_heuristics[heuristic]}
-
-    def process(self, algo_v, algo_key, h_v, h_key, filename=None, boost=False):
-        if boost:
-            print("Launching %s (boosted) with heuristic %s" % (self.algo_named[algo_key], self.heuristics_named[h_key]))
-            n = Npuzzle(filename=filename, algo_opt=algo_v, heuristic_opt=h_v, more_options=" -b ")
-            name = "(%s boosted + %s)" % (self.algo_named[algo_key], self.heuristics_named[h_key])
-        else:
-            print("Launching %s with heuristic %s" % (self.algo_named[algo_key], self.heuristics_named[h_key]))
-            n = Npuzzle(filename=filename, algo_opt=algo_v, heuristic_opt=h_v)
-            name = "(%s + %s)" % (self.algo_named[algo_key], self.heuristics_named[h_key])
-        n.run()
-        return n.parse_output(), name 
 
     def launch_loop(self, args):
         process_results = []
         row_names = {}
+        print("Launching %s with heuristic %s : %d times" % (args.algo, args.heuristic, args.number))
         for i in range(args.number):
+            print("Try %d", i)
             filename = "puzzles/generated_puzzle_%d.txt" % i
             self.generate_puzzle(args, filename)
-            for algo_key, algo_v in self.algorithms.items():
-                for h_key, h_v in self.heuristics.items():
-                    if self.boost and algo_key != "ida_star":
-                        out, _ = self.process(algo_v, algo_key, h_v, h_key, filename=filename, boost=True)
-                    else:
-                        out, _ = self.process(algo_v, algo_key, h_v, h_key, filename=filename)
+            for _, algo_v in self.algorithms.items():
+                for _, h_v in self.heuristics.items():
+                    n = Npuzzle(filename=filename, algo_opt=algo_v, heuristic_opt=h_v)
+                    n.run()
                     row_names[i] = "Try %d" % i
-                    process_results.append(out)
+                    process_results.append(n.parse_output())
         df = pd.DataFrame(process_results)
         df = df.rename(index=row_names)
         return df
@@ -136,35 +119,25 @@ class Process(object):
         process_results = []
         for algo_key, algo_v in self.algorithms.items():
             for h_key, h_v in self.heuristics.items():
-                out, name = self.process(algo_v, algo_key, h_v, h_key)
-                process_results.append(out)
+                print("Launching %s with heuristic %s" % (self.algo_named[algo_key], self.heuristics_named[h_key]))
+                n = Npuzzle(filename="generated_puzzle.txt", algo_opt=algo_v, heuristic_opt=h_v)
+                name = "[%s + %s]" % (self.algo_named[algo_key], self.heuristics_named[h_key])
+                n.run()
+                process_results.append(n.parse_output())
                 row_names[i] = name
                 i += 1
-                # Boost
-                if self.boost and algo_key != "ida_star":
-                    out, name = self.process(algo_v, algo_key, h_v, h_key, True)
-                    process_results.append(out)
-                    row_names[i] = name
-                    i += 1
         df = pd.DataFrame(process_results)
         df = df.rename(index=row_names)
         return df
 
     def generate_puzzle(self, args, filename):
-        if args.unsolvable:
-            solve_opt = '-u'
-        elif args.solvable:
-            solve_opt = '-s'
-        else:
-            solve_opt = ''
         if args.size and args.size >= 3:
             size = str(args.size)
         else:
-            # gerer l'erreur
             print("please enter a valid size")
             sys.exit(1)
         self.gen_filename = filename
-        self.cmd = self.generator_cmd.format(solve_opt=solve_opt, size=size, filename=filename)
+        self.cmd = self.generator_cmd.format(size=size, filename=filename)
         # Exec the generator
         os.system(self.cmd)
         self.get_generated_puzzle()
@@ -190,19 +163,15 @@ if __name__ == "__main__":
     parser.add_argument("size", type=int, nargs='?',
                         help="Size of the puzzle's side. Must be >3.")
     parser.add_argument("-n", "--number", type=int, help="Number of times the tests will be done. Work only with one heuristic and one algo")
-    parser.add_argument('-u', "--unsolvable",
-                        action="store_true", default=False)
-    parser.add_argument('-s', "--solvable", action="store_true", default=False)
-    parser.add_argument('-b', "--boost", action="store_true", default=False, help="Optimisation, reduce the time")
     parser.add_argument('-H', '--heuristic', nargs='+', type=int, choices=[0, 1, 2, 3], default=[0, 1, 2, 3],
                         help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict, 3 = Corner Tiles')
-    parser.add_argument('-A', '--algo', type=str, nargs='+', choices=['a_star', 'ida_star', 'greedy', 'uniform_cost'], default=['a_star', 'ida_star', 'greedy', 'uniform_cost'],
+    parser.add_argument('-A', '--algo', type=str, nargs='+', choices=['a_star', 'ida_star', 'greedy', 'uniform_cost', 'a_star_boost', 'greedy_boost', 'uniform_cost_boost'], default=['a_star', 'ida_star', 'greedy', 'uniform_cost', 'a_star_boost', 'greedy_boost', 'uniform_cost_boost'],
                         help='The algo type to use')
     parser.add_argument('-S', '--sort', type=str, choices=['nb_moves', 'complexity_time', 'complexity_size', 'time'],
                         help='Sort the table by a column name')
     args = parser.parse_args()
 
-    p = Process(algo=args.algo, heuristic=args.heuristic, boost=args.boost)
+    p = Process(algo=args.algo, heuristic=args.heuristic)
 
     if args.number:
         if len(args.algo) == 1 and len(args.heuristic) == 1:
@@ -212,10 +181,6 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         df = p.launch(args)
-    # Print the result in markdown
-    file = open("result.md", "w+")
-    file.write(df.to_markdown())
-    file.close()
     # Print in stdout
     print("Results:")
     if args.sort:
