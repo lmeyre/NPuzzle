@@ -14,7 +14,7 @@ def main():
     parser.add_argument('-F', '--format', type=str, nargs='?', choices=['snail', 'classic'], default='snail',
                     help='the format of the puzzle goal : snail (default) or classic')
     parser.add_argument("--hide", action="store_true", default=False, help="hide the print of the full solution path")
-    parser.add_argument('-b', "--boot", action="store_true", default=False, help="Optimisation, reduce the time")
+    parser.add_argument('-b', "--boost", action="store_true", default=False, help="Optimisation, reduce the time")
     algos = parser.add_mutually_exclusive_group()
     algos.add_argument('--ida', action="store_true", help="use the IDA * algorithm")
     algos.add_argument('--uniformcost', action="store_true", help="use the Uniform Cost algorithm")

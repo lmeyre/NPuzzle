@@ -56,7 +56,7 @@ class Puzzle:
     def check_past_states(self, newState, current, boost):
         if (current.parent is not None and newState.puzzle == current.parent.puzzle):
             return False
-        if (boost is False)
+        if boost is False:
             for i in list(self.actives.queue):
                 if (newState.puzzle == i.puzzle and newState.priority >= i.priority):
                     return False
@@ -104,7 +104,7 @@ class Puzzle:
             current = self.actives.get()
             if (current.h == 0):
                 return current
-            if not boost:
+            if boost is False:
                 paths = current.create_paths()
             self.used.put(current, current.priority, boost)
             for i in paths:
