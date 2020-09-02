@@ -98,7 +98,7 @@ class Process(object):
         row_names = {}
         print("Launching %s with heuristic %s : %d times" % (args.algo, args.heuristic, args.number))
         for i in range(args.number):
-            print("Try %d", i)
+            print("Try %d" % i)
             filename = "puzzles/generated_puzzle_%d.txt" % i
             self.generate_puzzle(args, filename)
             for _, algo_v in self.algorithms.items():
