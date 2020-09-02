@@ -99,21 +99,9 @@ class Puzzle:
     def run_puzzle(self, algo, boost):
         self.actives.put(self.starter)
         current = None
-        val = 90
         while True:
             self.update_complexity_size()
             current = self.actives.get()
-            # val += 1
-            # if (val == 1000):
-            #     for i in list(self.actives.queue):
-            #         print(i.priority)
-            #     sys.exit()
-            # if (val >= 100):
-            #     #val = 0
-            #     print("current F G H = ", current.f, "  ", current.g, "   ", current.h, " prio - ", current.priority, " a/u =", self.actives.qsize(), "/", self.used.qsize())
-            #     print("curr:")
-            #     for i in current.puzzle:
-            #         print(i)
             if (current.h == 0):
                 return current
             paths = current.create_paths()
