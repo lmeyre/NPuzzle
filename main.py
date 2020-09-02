@@ -30,8 +30,12 @@ def main():
         algo = Puzzle.E_Search.UNIFORM_COST
     elif (args.algo == 'greedy'):
         algo = Puzzle.E_Search.GREEDY_SEARCH
+        if args.boost is True:
+            args.boost = False
+            print("n-puzzle warning: %s", "Boost option isn't avalaible with greedy : ignoring it")
     elif (args.algo == 'ida_star'):
         algo = Puzzle.E_Search.IDA_STAR
+        print("n-puzzle warning: %s", "Boost option isn't avalaible with ida_star : ignoring it")
     Solver = Puzzle.Puzzle(puzzle, args, algo)
     err = Solver.launch_puzzle(args.hide, algo, args.boost)
     if err:
