@@ -75,7 +75,7 @@ class Npuzzle(object):
 class Process(object):
 
     available_algorithms = {'a_star': ' -A a_star ', 'a_star_boost': ' -A a_star -b ', 'ida_star': '  -A ida_star ',
-                            'greedy': ' -A greedy ', 'greedy_boost': ' -A greedy -b ', 'uniform_cost': ' -A uniform_cost ', 'uniform_cost_boost': ' -A uniform_cost -b '}
+                            'greedy': ' -A greedy ', 'uniform_cost': ' -A uniform_cost ', 'uniform_cost_boost': ' -A uniform_cost -b '}
     # 0 = Manhattan
     # 1 = Out of place
     # 2 = Linear conflict
@@ -84,7 +84,7 @@ class Process(object):
     heuristics_named = {0: 'Manhattan', 1: 'Out of place',
                         2: 'Linear conflict', 3: 'Corner Tiles'}
     algo_named = {'a_star': 'A *', 'a_star_boost': 'A * boosted', 'ida_star': 'IDA *',
-                  'greedy': 'Greedy search', 'greedy_boost': 'Greedy search boosted', 'uniform_cost': 'Uniform cost', 'uniform_cost_boost': 'Uniform cost boosted'}
+                  'greedy': 'Greedy search', 'uniform_cost': 'Uniform cost', 'uniform_cost_boost': 'Uniform cost boosted'}
     generator_cmd = 'python2 npuzzle-gen.py -s {size} > {filename}'
 
     def __init__(self, algo=None, heuristic=None):
@@ -112,15 +112,19 @@ class Process(object):
         return df
 
     def launch(self, args):
-        self.generate_puzzle(args, "generated_puzzle.txt")
-        self.print_generated_puzzle()
+        if args.file:
+            filename = args.file
+        else:
+            self.generate_puzzle(args, "generated_puzzle.txt")
+            filename = "generated_puzzle.txt"
+            self.print_generated_puzzle()
         row_names = {}
         i = 0
         process_results = []
         for algo_key, algo_v in self.algorithms.items():
             for h_key, h_v in self.heuristics.items():
                 print("Launching %s with heuristic %s" % (self.algo_named[algo_key], self.heuristics_named[h_key]))
-                n = Npuzzle(filename="generated_puzzle.txt", algo_opt=algo_v, heuristic_opt=h_v)
+                n = Npuzzle(filename=filename, algo_opt=algo_v, heuristic_opt=h_v)
                 name = "[%s + %s]" % (self.algo_named[algo_key], self.heuristics_named[h_key])
                 n.run()
                 process_results.append(n.parse_output())
@@ -162,6 +166,7 @@ if __name__ == "__main__":
     parser = arg.ArgumentParser(description='This program solves n-puzzle')
     parser.add_argument("size", type=int, nargs='?',
                         help="Size of the puzzle's side. Must be >3.")
+    parser.add_argument('file', type=str, nargs='?', help='file that contains the puzzle to be solved')
     parser.add_argument("-n", "--number", type=int, help="Number of times the tests will be done. Work only with one heuristic and one algo")
     parser.add_argument('-H', '--heuristic', nargs='+', type=int, choices=[0, 1, 2, 3], default=[0, 1, 2, 3],
                         help='The heuristic function to use : 0 = Manhattan (default), 1 = Out of place, 2 = Linear conflict, 3 = Corner Tiles')
