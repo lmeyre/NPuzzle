@@ -1,5 +1,6 @@
 from Heuristic import HeuristicValue, E_Heuristic
 import Puzzle
+import queue
 
 class State:
 
@@ -44,16 +45,20 @@ class State:
     
     def create_paths(self):
         x, y = self.give_space_pos()
-        paths = []
+        paths = queue.PriorityQueue()
         if (x - 1 >= 0):
-            paths.append(self.make_next_state(x - 1, y, x, y))
+            new = self.make_next_state(x - 1, y, x, y)
+            paths.put(new, new.priority)
         if (x + 1 < self.size):
-            paths.append(self.make_next_state(x + 1, y, x, y))
+            new = self.make_next_state(x + 1, y, x, y)
+            paths.put(new, new.priority)
         if (y - 1 >= 0):
-            paths.append(self.make_next_state(x, y - 1, x, y))
+            new = self.make_next_state(x, y - 1, x, y)
+            paths.put(new, new.priority)
         if (y + 1 < self.size):
-            paths.append(self.make_next_state(x, y + 1, x, y))
-        return paths
+            new = self.make_next_state(x, y + 1, x, y)
+            paths.put(new, new.priority)
+        return paths.queue
 
     def get_queue_val(self, algo):
         if algo == Puzzle.E_Search.A_STAR or algo == Puzzle.E_Search.IDA_STAR:

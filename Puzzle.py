@@ -26,7 +26,7 @@ class Puzzle:
                 self.actives = queue.LifoQueue()
             else:
                 self.actives = queue.PriorityQueue()
-                self.used = queue.LifoQueue()
+                self.used = set()
             self.ida_used = 0
             self.ida = []
             self.complexity_size = 0
@@ -41,7 +41,7 @@ class Puzzle:
         if self.ida_used:
             return self.ida_used
         else:
-            return self.used.qsize() + self.actives.qsize()
+            return len(self.used) + self.actives.qsize()
 
     def check_valid_puzzle(self, origin_puzzle):
         return Utils.is_solvable(origin_puzzle, self.goal)
@@ -60,7 +60,7 @@ class Puzzle:
             for i in list(self.actives.queue):
                 if (newState.puzzle == i.puzzle and newState.priority >= i.priority):
                     return False
-            for i in list(self.used.queue):
+            for i in self.used:
                 if (newState.puzzle == i.puzzle):
                     return False
         return True
@@ -106,7 +106,7 @@ class Puzzle:
                 return current
             paths = current.create_paths()
             if boost is False:
-                self.used.put(current, current.priority)
+                self.used.add(current)
             for i in paths:
                 if self.check_past_states(i, current, boost):
                     self.actives.put(i, i.priority)
